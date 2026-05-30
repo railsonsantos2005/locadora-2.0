@@ -1,22 +1,14 @@
-
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from app.schemas.cliente import Cliente
 from app.models.cliente import ClienteModel
-from app.core.database import SessionLocal
+from app.core.database import get_db
 
 router = APIRouter(
     prefix="/clientes",
     tags=["Clientes"]
 )
-
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 @router.get("/")
 def listar(db: Session = Depends(get_db)):
@@ -40,7 +32,9 @@ def criar(cliente: Cliente, db: Session = Depends(get_db)):
 @router.put("/{id}")
 def atualizar(id: int, cliente: Cliente, db: Session = Depends(get_db)):
 
-    cliente_db = db.query(ClienteModel).filter(ClienteModel.id == id).first()
+    cliente_db = db.query(ClienteModel).filter(
+        ClienteModel.id == id
+    ).first()
 
     if not cliente_db:
         return {"erro": "Cliente não encontrado"}
@@ -56,7 +50,9 @@ def atualizar(id: int, cliente: Cliente, db: Session = Depends(get_db)):
 @router.delete("/{id}")
 def deletar(id: int, db: Session = Depends(get_db)):
 
-    cliente_db = db.query(ClienteModel).filter(ClienteModel.id == id).first()
+    cliente_db = db.query(ClienteModel).filter(
+        ClienteModel.id == id
+    ).first()
 
     if not cliente_db:
         return {"erro": "Cliente não encontrado"}
